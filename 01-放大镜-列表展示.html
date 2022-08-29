@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        header {
+            height: 100px;
+            background-color: #eee;
+        }
+
+        .wrap {
+            width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 小盒子 */
+
+        #min {
+            width: 450px;
+            height: 450px;
+            border: 1px solid #666;
+            position: relative;
+            top: 0px;
+            left: 30px;
+        }
+
+        #min img {
+            width: 450px;
+            height: 450px;
+        }
+
+        /* 蒙版 */
+
+        #mask {
+            width: 200px;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: none;
+        }
+
+        /* 大盒子 */
+
+        #max {
+            width: 600px;
+            height: 600px;
+            border: 1px solid #999;
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 500px;
+            display: none;
+        }
+
+        /* 大盒子的图片 */
+
+        #maxImg {
+            position: absolute;
+        }
+
+        /* 下面的列表 */
+
+        .slide {
+            width: 400px;
+            height: 90px;
+            margin: 50px 0 0 50px;
+        }
+
+        /* 左右按钮 */
+
+        .slide .prev,
+        .slide .next {
+            width: 25px;
+            height: 90px;
+            text-align: center;
+            line-height: 90px;
+            float: left;
+            cursor: pointer;
+            font-size: 32px;
+            user-select: none;
+            border: 0;
+        }
+
+        .slide .slide-wrap {
+            width: 350px;
+            height: 90px;
+            float: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 整个ul */
+
+        .slide .slide-wrap ul {
+            width: 9999px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .slide .slide-wrap ul li {
+            width: 58px;
+            height: 58px;
+            border: 1px solid #ddd;
+            float: left;
+            margin: 15px 5px;
+            cursor: pointer;
+        }
+
+        .slide .slide-wrap ul li:hover {
+            border: 1px solid red;
+        }
+
+        .slide .slide-wrap .slide-list li img {
+            width: 58px;
+            height: 58px;
+        }
+
+        .big {
+            width: 450px;
+            height: 450px;
+            overflow: hidden;
+            position: absolute;
+            left: 410px;
+            top: 0;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        .big img {
+            width: 800px;
+            height: 800px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header></header>
+    <div class="wrap">
+        <!-- 小图片的元素 -->
+        <div id="min">
+            <!-- 小图片 -->
+            <img src="images/01.jpg" alt="">
+            <!-- 蒙版 -->
+            <div id="mask"></div>
+        </div>
+        <!-- 放大区域 -->
+        <div id="max">
+            <img src="images/01.jpg" alt="" id="maxImg">
+        </div>
+        <div class="slide">
+            <button class="prev" disabled>&lt;</button>
+            <div class="slide-wrap">
+                <ul class="slide-list">
+                    <li><img src="images/01.jpg" alt=""></li>
+                    <li><img src="images/02.jpg" alt=""></li>
+                    <li><img src="images/03.png" alt=""></li>
+                    <li><img src="images/04.jpg" alt=""></li>
+                    <li><img src="images/05.jpg" alt=""></li>
+                    <li><img src="images/06.jpg" alt=""></li>
+                    <li><img src="images/07.png" alt=""></li>
+                    <li><img src="images/08.jpg" alt=""></li>
+                </ul>
+            </div>
+            <button class="next">&gt;</button>
+        </div>
+    </div>
+
+    <script src="js/jquery-3.4.1.js"></script>
+    <script>
+        // 1.鼠标移动到小盒子里,蒙版出现,大盒子出现
+        // 2.蒙版跟随鼠标移动
+        // 3.蒙版移动,大盒子里的图片也移动
+        // 4.鼠标离开小盒子,蒙版消失,大盒子消失
+        // 获取元素
+        // 1.鼠标移动到小盒子里,蒙版出现,大盒子出现
+        $('#min').hover(function () {
+            $('#mask').show();
+            $('#max').show();
+        }, function () {
+            $('#mask').hide();
+            $('#max').hide();
+        });
+
+        // 2.蒙版跟随鼠标移动
+        $('#min').mousemove(function (e) {
+            // 鼠标的偏移减去小盒子的偏移，再减去蒙版的1/2的大小，最小距离，使鼠标在蒙版中间
+            var minX = e.pageX - $('#min').offset().left - $('#mask').width() / 2;
+            var minY = e.pageY - $('#min').offset().top - $('#mask').height() / 2;
+            // 最大值距离
+            var maskmovedisX = $('#min').width() - $('#mask').width();
+            var maskmovedisY = $('#min').height() - $('#mask').height();
+            // 判断使蒙版不移出小盒子
+            if (minX > maskmovedisX) {
+                minX = maskmovedisX;
+            } else if (minX < 0) {
+                minX = 0
+            };
+            if (minY > maskmovedisY) {
+                minY = maskmovedisY;
+            } else if (minY < 0) {
+                minY = 0
+            };
+            // 设置蒙版的位置
+            $("#mask").css({
+                left: minX,
+                top: minY
+            })
+
+            // 求比例关系 
+            // 3.蒙版移动,大盒子里的图片也移动
+            var radioX = minX / maskmovedisX;
+            var radioY = minY / maskmovedisY;
+
+            // 求大图片移动的距离
+            $("#maxImg").css({
+                left: radioX * ($('#max').width() - $('#maxImg').width()),
+                top: radioY * ($('#max').height() - $('#maxImg').height())
+            });
+        });
+        //点击next
+        // 点击开关--避免多次点击造成的bug
+        var flagNext = true;
+        $(".next").click(function () {
+            if (flagNext) {
+                flagNext = false;
+                // 右按钮不禁用
+                $(".prev").prop('disabled', false);
+                $(".slide-list").animate({
+                    left: "-=" + 70
+                }, function () {
+                    // 最后一个图片出现，右按钮禁用
+                    if ($(".slide-list").position().left == -210) {
+                        $('.next').prop('disabled', true);
+                    };
+                    flagNext = true;
+                });
+            }
+        });
+
+        //点击上一个prev
+        // 点击开关--避免多次点击造成的bug
+        var flagPrev = true;
+        $(".prev").click(function () {
+            if (flagPrev) {
+                flagPrev = false;
+                // 左按钮不禁用
+                $(".next").prop('disabled', false);
+                $(".slide-list").animate({
+                    left: "+=" + 70
+                }, function () {
+                    // 当移动到初始位置左按钮禁用
+                    if ($(".slide-list").position().left == 0) {
+                        $(".prev").prop('disabled', true);
+                    };
+                    flagPrev = true;
+                });
+
+            }
+        });
+        //点击slide中的li中的图片
+        $(".slide-list li").find("img").mouseover(function () {
+            // 获取slide中的li的图片的索引得到它的src，将这两项添加到小盒子和大盒子中的图片，使他们保持一致
+            var index = $(this).parent().index() //li的索引
+            var imgsrc = $(".slide-list li").eq(index).find("img").attr("src")
+            $("#min img").attr("src", imgsrc);
+            $("#max img").attr("src", imgsrc);
+        })
+    </script>
+</body>
+
+</html>
